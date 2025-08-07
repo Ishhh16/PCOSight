@@ -147,6 +147,8 @@ const PCOSight = () => {
         { opacity: 0, scale: 0.8, y: 20 },
         { opacity: 1, scale: 1, y: 0, duration: 0.6, ease: "back.out(1.7)" }
       );
+      // Scroll to result card
+      resultRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   }, [prediction]);
 
