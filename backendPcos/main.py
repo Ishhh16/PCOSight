@@ -5,6 +5,8 @@ import numpy as np
 import joblib
 import shap
 from fastapi.middleware.cors import CORSMiddleware
+import lime
+import lime.lime_tabular
 
 app = FastAPI()
 
@@ -22,8 +24,8 @@ scaler = joblib.load("scalerF.pkl")
 selected_features = joblib.load("selected_featuresF.pkl")
 
 # 🔥 Background data for SHAP (random sample, ideally use a few real training rows instead)
-background_data = np.random.rand(100, len(selected_features))
-explainer = shap.KernelExplainer(model.predict_proba, background_data)
+# background_data = np.random.rand(100, len(selected_features))
+# explainer = shap.KernelExplainer(model.predict_proba, background_data)
 
 # Define input schema matching selected features
 class PCOSInput(BaseModel):
@@ -80,6 +82,16 @@ def predict(data: PCOSInput):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Prediction failed: {str(e)}")
 
+
+X_train = np.load("X_train_scaled.npy")  # ← save this in colab
+lime_explainer = lime.lime_tabular.LimeTabularExplainer(
+    X_train,
+    feature_names=selected_features,
+    class_names=["No PCOS", "PCOS"],
+    mode="classification"
+)
+
+
 @app.post("/explain")
 def explain(data: PCOSInput):
     try:
@@ -104,22 +116,21 @@ def explain(data: PCOSInput):
         ordered_input = [input_data[feat] for feat in selected_features]
         scaled_input = scaler.transform([ordered_input])
 
-
-        shap_values = explainer.shap_values(scaled_input)
-
-        # For binary classifier, use the first set of SHAP values
-        feature_contributions = list(zip(selected_features, shap_values[0][0]))
-        feature_contributions.sort(key=lambda x: abs(x[1]), reverse=True)
+        # LIME explanation (for the single instance)
+        explanation = lime_explainer.explain_instance(
+            scaled_input[0],
+            model.predict_proba,
+            num_features=5
+        )
 
         top_features = []
-        for feat, val in feature_contributions[:5]:
+        for feat, val in explanation.as_list():
             top_features.append({
                 "feature": feat,
-                "contribution": round(float(val), 4),    # For UI
-                "raw_value": float(val)                  #for backend 
-    })
+                "contribution": round(float(val), 4)
+            })
 
         return {"explanation": top_features}
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"SHAP explainability failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"LIME explainability failed: {str(e)}")

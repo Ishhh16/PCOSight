@@ -1,16 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { AiOutlineInfoCircle } from 'react-icons/ai';
-import { Chart, Bar } from 'react-chartjs-2';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-} from 'chart.js';
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+import FeatureImportanceChart from '@/components/ui/FeatureImportanceChart';
 import { gsap } from 'gsap';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -19,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import bgImage from '@/assets/bg.jpeg';
+// import FeatureImportanceChart from './FeatureImportanceChart';
 
 interface FormData {
   age: string;
@@ -441,59 +432,7 @@ const PCOSight = () => {
               </div>
             </Card>
             {/* Horizontal Bar Chart for SHAP explanation */}
-            {explanation.length > 0 && (
-              <Card className="backdrop-blur-md bg-glass-bg border-glass-border shadow-2xl shadow-glass-shadow/20 p-8 mb-8 text-center">
-                <div className="flex items-center justify-center mb-4 gap-2">
-                  <h4 className="text-xl font-playfair font-bold">Top 5 Feature Contributors</h4>
-                  <span className="relative group">
-                    <AiOutlineInfoCircle className="inline-block text-lg cursor-pointer text-blue-500" />
-                    <span className="absolute left-6 top-1 z-10 w-80 p-3 rounded-lg bg-white/90 text-gray-800 text-sm shadow-lg border border-gray-200 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
-                      💡 The "contributors" are the features (like Age, Weight, AMH level, etc.) that pushed the prediction up or down the most — positively or negatively.<br />
-                      These values come from SHAP — it assigns a "contribution score" to each feature.
-                    </span>
-                  </span>
-                </div>
-                <Bar
-                  data={{
-                    labels: explanation.slice(0, 5).map(f => f.feature),
-                    datasets: [
-                      {
-                        label: 'Importance',
-                        data: explanation.slice(0, 5).map(f => Math.abs(f.contribution)),
-                        backgroundColor: explanation.slice(0, 5).map(f => f.contribution > 0 ? 'rgba(220,38,38,0.7)' : 'rgba(34,197,94,0.7)'),
-                        borderRadius: 8,
-                        barThickness: 32,
-                      },
-                    ],
-                  }}
-                  options={{
-                    indexAxis: 'y',
-                    plugins: {
-                      legend: { display: false },
-                      tooltip: {
-                        callbacks: {
-                          label: function(context) {
-                            const val = explanation[context.dataIndex].contribution;
-                            return `${val > 0 ? 'Increases' : 'Reduces'} likelihood (${val})`;
-                          }
-                        }
-                      },
-                    },
-                    scales: {
-                      x: {
-                        beginAtZero: true,
-                        grid: { color: 'rgba(255,255,255,0.1)' },
-                        ticks: { color: '#000' },
-                      },
-                      y: {
-                        grid: { color: 'rgba(255,255,255,0.1)' },
-                        ticks: { color: '#000' },
-                      },
-                    },
-                  }}
-                />
-              </Card>
-            )}
+            <FeatureImportanceChart explanation={explanation.slice(0, 5)} />
           </>
         )}
 
