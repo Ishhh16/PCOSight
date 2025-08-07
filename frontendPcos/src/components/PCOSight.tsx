@@ -1,4 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { AiOutlineInfoCircle } from 'react-icons/ai';
+import { Chart, Bar } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 import { gsap } from 'gsap';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -27,6 +39,7 @@ interface FormData {
 }
 
 const PCOSight = () => {
+  const [explanation, setExplanation] = useState<any[]>([]);
   const [formData, setFormData] = useState<FormData>({
     age: '',
     weight: '',
@@ -102,30 +115,41 @@ const PCOSight = () => {
   const handlePredict = async () => {
     setIsLoading(true);
     try {
+      const payload = {
+        Age_yrs: Number(formData.age),
+        Weight_Kg: Number(formData.weight),
+        Hb_g_dl: Number(formData.hb),
+        Cycle_R_I: formData.cycle === 'R' ? 2 : 4,
+        Cycle_length_days: Number(formData.cycleLength),
+        I_beta_HCG_mIU_mL: Number(formData.betaHCG),
+        AMH_ng_mL: Number(formData.amh),
+        Weight_gain_YN: formData.weightGain ? 1 : 0,
+        hair_growth_YN: formData.hairGrowth ? 1 : 0,
+        Skin_darkening_YN: formData.skinDarkening ? 1 : 0,
+        Pimples_YN: formData.pimples ? 1 : 0,
+        Fast_food_YN: formData.fastFood ? 1 : 0,
+        Follicle_No_L: Number(formData.follicleL),
+        Follicle_No_R: Number(formData.follicleR),
+        Endometrium_mm: Number(formData.endometrium)
+      };
       const response = await fetch('http://localhost:9000/predict', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          Age_yrs: Number(formData.age),
-          Weight_Kg: Number(formData.weight),
-          Hb_g_dl: Number(formData.hb),
-          Cycle_R_I: formData.cycle === 'R' ? 2 : 4,
-          Cycle_length_days: Number(formData.cycleLength),
-          I_beta_HCG_mIU_mL: Number(formData.betaHCG),
-          AMH_ng_mL: Number(formData.amh),
-          Weight_gain_YN: formData.weightGain ? 1 : 0,
-          hair_growth_YN: formData.hairGrowth ? 1 : 0,
-          Skin_darkening_YN: formData.skinDarkening ? 1 : 0,
-          Pimples_YN: formData.pimples ? 1 : 0,
-          Fast_food_YN: formData.fastFood ? 1 : 0,
-          Follicle_No_L: Number(formData.follicleL),
-          Follicle_No_R: Number(formData.follicleR),
-          Endometrium_mm: Number(formData.endometrium)
-        }),
+        body: JSON.stringify(payload),
       });
       const result = await response.json();
+      // Fetch explanation
+      const expRes = await fetch('http://localhost:9000/explain', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+      const expData = await expRes.json();
+      setExplanation(expData.explanation || []);
       // Always scroll to result after prediction
       setTimeout(() => {
         if (resultRef.current) {
@@ -142,6 +166,7 @@ const PCOSight = () => {
     } catch (error) {
       console.error('Prediction failed:', error);
       setPrediction(null);
+      setExplanation([]);
     }
     setIsLoading(false);
   };
@@ -393,27 +418,83 @@ const PCOSight = () => {
 
         {/* Prediction Result */}
         {prediction && (
-          <Card ref={resultRef} className="backdrop-blur-md bg-glass-bg border-glass-border shadow-2xl shadow-glass-shadow/20 p-8 text-center">
-            <div className="space-y-4">
-              {prediction === 'low' ? (
-                <>
-                  <div className="text-6xl">✅</div>
-                  <h3 className="text-3xl font-playfair font-bold text-primary">Low Risk of PCOS</h3>
-                  <p className="text-lg font-quicksand text-foreground/80">
-                    Great news! Your symptoms suggest a lower risk. Keep maintaining a healthy lifestyle! 🌟
-                  </p>
-                </>
-              ) : (
-                <>
-                  <div className="text-6xl">⚠️</div>
-                  <h3 className="text-3xl font-playfair font-bold text-destructive">High Risk of PCOS</h3>
-                  <p className="text-lg font-quicksand text-foreground/80">
-                    Consider consulting with a healthcare professional for proper evaluation and guidance. 💙
-                  </p>
-                </>
-              )}
-            </div>
-          </Card>
+          <>
+            <Card ref={resultRef} className="backdrop-blur-md bg-glass-bg border-glass-border shadow-2xl shadow-glass-shadow/20 p-8 text-center mb-8">
+              <div className="space-y-4">
+                {prediction === 'low' ? (
+                  <>
+                    <div className="text-6xl">✅</div>
+                    <h3 className="text-3xl font-playfair font-bold text-primary">Low Risk of PCOS</h3>
+                    <p className="text-lg font-quicksand text-foreground/80">
+                      Great news! Your symptoms suggest a lower risk. Keep maintaining a healthy lifestyle! 🌟
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <div className="text-6xl">⚠️</div>
+                    <h3 className="text-3xl font-playfair font-bold text-destructive">High Risk of PCOS</h3>
+                    <p className="text-lg font-quicksand text-foreground/80">
+                      Consider consulting with a healthcare professional for proper evaluation and guidance. 💙
+                    </p>
+                  </>
+                )}
+              </div>
+            </Card>
+            {/* Horizontal Bar Chart for SHAP explanation */}
+            {explanation.length > 0 && (
+              <Card className="backdrop-blur-md bg-glass-bg border-glass-border shadow-2xl shadow-glass-shadow/20 p-8 mb-8 text-center">
+                <div className="flex items-center justify-center mb-4 gap-2">
+                  <h4 className="text-xl font-playfair font-bold">Top 5 Feature Contributors</h4>
+                  <span className="relative group">
+                    <AiOutlineInfoCircle className="inline-block text-lg cursor-pointer text-blue-500" />
+                    <span className="absolute left-6 top-1 z-10 w-80 p-3 rounded-lg bg-white/90 text-gray-800 text-sm shadow-lg border border-gray-200 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+                      💡 The "contributors" are the features (like Age, Weight, AMH level, etc.) that pushed the prediction up or down the most — positively or negatively.<br />
+                      These values come from SHAP — it assigns a "contribution score" to each feature.
+                    </span>
+                  </span>
+                </div>
+                <Bar
+                  data={{
+                    labels: explanation.slice(0, 5).map(f => f.feature),
+                    datasets: [
+                      {
+                        label: 'Importance',
+                        data: explanation.slice(0, 5).map(f => Math.abs(f.contribution)),
+                        backgroundColor: explanation.slice(0, 5).map(f => f.contribution > 0 ? 'rgba(220,38,38,0.7)' : 'rgba(34,197,94,0.7)'),
+                        borderRadius: 8,
+                        barThickness: 32,
+                      },
+                    ],
+                  }}
+                  options={{
+                    indexAxis: 'y',
+                    plugins: {
+                      legend: { display: false },
+                      tooltip: {
+                        callbacks: {
+                          label: function(context) {
+                            const val = explanation[context.dataIndex].contribution;
+                            return `${val > 0 ? 'Increases' : 'Reduces'} likelihood (${val})`;
+                          }
+                        }
+                      },
+                    },
+                    scales: {
+                      x: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(255,255,255,0.1)' },
+                        ticks: { color: '#000' },
+                      },
+                      y: {
+                        grid: { color: 'rgba(255,255,255,0.1)' },
+                        ticks: { color: '#000' },
+                      },
+                    },
+                  }}
+                />
+              </Card>
+            )}
+          </>
         )}
 
         {/* Privacy Notice */}
