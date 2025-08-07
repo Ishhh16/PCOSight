@@ -170,6 +170,12 @@ const PCOSight = () => {
     }
   };
 
+  // Check if all required fields are filled
+  const isFormComplete = Object.values(formData).every(val => {
+    if (typeof val === 'boolean') return true;
+    return val !== '';
+  });
+
   return (
     <div 
       className="min-h-screen p-4 relative overflow-hidden"
@@ -367,7 +373,7 @@ const PCOSight = () => {
             <Button
               ref={buttonRef}
               onClick={handlePredict}
-              disabled={isLoading}
+              disabled={isLoading || !isFormComplete}
               onMouseEnter={handleButtonHover}
               onMouseLeave={handleButtonLeave}
               className="bg-gradient-to-br from-violet-500 via-purple-500 to-indigo-600 hover:from-violet-600 hover:via-purple-600 hover:to-indigo-700 text-white font-quicksand font-semibold text-lg px-12 py-3 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105"
