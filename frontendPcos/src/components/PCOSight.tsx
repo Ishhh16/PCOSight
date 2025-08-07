@@ -111,7 +111,7 @@ const PCOSight = () => {
           Age_yrs: Number(formData.age),
           Weight_Kg: Number(formData.weight),
           Hb_g_dl: Number(formData.hb),
-          Cycle_R_I: formData.cycle === 'R' ? 1 : 0,
+          Cycle_R_I: formData.cycle === 'R' ? 2 : 4,
           Cycle_length_days: Number(formData.cycleLength),
           I_beta_HCG_mIU_mL: Number(formData.betaHCG),
           AMH_ng_mL: Number(formData.amh),
@@ -126,6 +126,12 @@ const PCOSight = () => {
         }),
       });
       const result = await response.json();
+      // Always scroll to result after prediction
+      setTimeout(() => {
+        if (resultRef.current) {
+          resultRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 100); // slight delay to ensure result is rendered
       if (result.prediction === 1) {
         setPrediction('high');
       } else if (result.prediction === 0) {
