@@ -126,7 +126,7 @@ const PCOSight = () => {
         Follicle_No_R: Number(formData.follicleR),
         Endometrium_mm: Number(formData.endometrium)
       };
-      const response = await fetch('http://localhost:9000/predict', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/predict`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -135,7 +135,7 @@ const PCOSight = () => {
       });
       const result = await response.json();
       // Fetch explanation
-      const expRes = await fetch('http://localhost:9000/explain', {
+      const expRes = await fetch(`${import.meta.env.VITE_API_URL}/explain`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
