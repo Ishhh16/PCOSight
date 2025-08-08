@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AiOutlineInfoCircle } from 'react-icons/ai';
 import FeatureImportanceChart from '@/components/ui/FeatureImportanceChart';
 import { gsap } from 'gsap';
@@ -30,6 +31,7 @@ interface FormData {
 }
 
 const PCOSight = () => {
+  const navigate = useNavigate();
   const [explanation, setExplanation] = useState<any[]>([]);
   const [formData, setFormData] = useState<FormData>({
     age: '',
@@ -443,6 +445,15 @@ const PCOSight = () => {
                 )}
               </div>
             </Card>
+            {/* What to do now button */}
+            <div className="flex justify-center mb-6">
+              <Button
+                className="bg-gradient-to-br from-violet-500 via-purple-500 to-indigo-600 hover:from-violet-600 hover:via-purple-600 hover:to-indigo-700 text-white font-quicksand font-semibold text-lg px-12 py-3 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105"
+                onClick={() => navigate('/what-to-do')}
+              >
+                What to do now?
+              </Button>
+            </div>
             {/* Horizontal Bar Chart for SHAP explanation */}
             <FeatureImportanceChart explanation={explanation.slice(0, 5)} />
           </>
