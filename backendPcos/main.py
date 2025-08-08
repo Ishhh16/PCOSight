@@ -23,9 +23,6 @@ model = joblib.load("pcos_model1.pkl")
 scaler = joblib.load("scalerF.pkl")
 selected_features = joblib.load("selected_featuresF.pkl")
 
-# 🔥 Background data for SHAP (random sample, ideally use a few real training rows instead)
-# background_data = np.random.rand(100, len(selected_features))
-# explainer = shap.KernelExplainer(model.predict_proba, background_data)
 
 # Define input schema matching selected features
 class PCOSInput(BaseModel):
@@ -72,10 +69,25 @@ def predict(data: PCOSInput):
 
         ordered_input = [input_data[feat] for feat in selected_features]
         scaled_input = scaler.transform([ordered_input])
+
+        # Prediction
         prediction = model.predict(scaled_input)[0]
 
+        # Get probability scores
+        probs = model.predict_proba(scaled_input)[0]  # ✅ use scaled_input here
+
+        # Pick the probability of the predicted class
+        pred_class = int(np.argmax(probs))
+        confidence = probs[pred_class]
+
+        # Final result text
         result = "PCOS Detected 🧬" if prediction == 1 else "No PCOS 🙌"
-        return {"prediction": int(prediction), "result": result}
+
+        return {
+        "prediction": int(prediction),
+        "result": result,
+        "confidence": round(float(confidence) * 100, 2)  # percentage
+        }
 
     except KeyError as e:
         raise HTTPException(status_code=422, detail=f"Missing feature: {e}")
@@ -83,7 +95,7 @@ def predict(data: PCOSInput):
         raise HTTPException(status_code=500, detail=f"Prediction failed: {str(e)}")
 
 
-X_train = np.load("X_train_scaled.npy")  # ← save this in colab
+X_train = np.load("X_train_scaled.npy")  # ← saved this in colab
 lime_explainer = lime.lime_tabular.LimeTabularExplainer(
     X_train,
     feature_names=selected_features,
