@@ -50,6 +50,7 @@ const PCOSight = () => {
   });
 
   const [prediction, setPrediction] = useState<string | null>(null);
+  const [confidence, setConfidence] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const heroRef = useRef<HTMLDivElement>(null);
@@ -154,6 +155,7 @@ const PCOSight = () => {
       } else {
         setPrediction(null);
       }
+      setConfidence(result.confidence);
     } catch (error) {
       console.error('Prediction failed:', error);
       setPrediction(null);
@@ -416,6 +418,11 @@ const PCOSight = () => {
                   <>
                     <div className="text-6xl">✅</div>
                     <h3 className="text-3xl font-playfair font-bold text-primary">Low Risk of PCOS</h3>
+                    {confidence !== null && (
+                      <div className="text-base font-playfair text-foreground/80 mt-2">
+                        Confidence: <span className="font-bold">{confidence.toFixed(1)}%</span>
+                      </div>
+                    )}
                     <p className="text-lg font-quicksand text-foreground/80">
                       Great news! Your symptoms suggest a lower risk. Keep maintaining a healthy lifestyle! 🌟
                     </p>
@@ -424,6 +431,11 @@ const PCOSight = () => {
                   <>
                     <div className="text-6xl">⚠️</div>
                     <h3 className="text-3xl font-playfair font-bold text-destructive">High Risk of PCOS</h3>
+                    {confidence !== null && (
+                      <div className="text-base font-playfair text-foreground/80 mt-2">
+                        Confidence: <span className="font-bold">{confidence.toFixed(1)}%</span>
+                      </div>
+                    )}
                     <p className="text-lg font-quicksand text-foreground/80">
                       Consider consulting with a healthcare professional for proper evaluation and guidance. 💙
                     </p>
