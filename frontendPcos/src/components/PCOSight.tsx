@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AiOutlineInfoCircle } from 'react-icons/ai';
-import FeatureImportanceChart from '@/components/ui/FeatureImportanceChart';
+import {FeatureImportanceChart} from '@/components/ui/FeatureImportanceChart';
 import { gsap } from 'gsap';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';

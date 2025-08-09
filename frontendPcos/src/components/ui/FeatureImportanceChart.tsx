@@ -6,21 +6,18 @@ import { AiOutlineInfoCircle } from 'react-icons/ai';
 // Chart.js setup
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
-// Type for each feature explanation
 interface FeatureContribution {
   feature: string;
   contribution: number;
 }
 
-// Props type
 interface FeatureImportanceChartProps {
   explanation: FeatureContribution[];
 }
 
-const FeatureImportanceChart: React.FC<FeatureImportanceChartProps> = ({ explanation }) => {
+export const FeatureImportanceChart: React.FC<FeatureImportanceChartProps> = ({ explanation }) => {
   if (!explanation || explanation.length === 0) return null;
 
-  // Always pad to 5 features
   const padded = [...explanation];
   while (padded.length < 5) {
     padded.push({ feature: `Feature ${padded.length + 1}`, contribution: 0 });
@@ -69,64 +66,15 @@ const FeatureImportanceChart: React.FC<FeatureImportanceChartProps> = ({ explana
   };
 
   return (
-    <div
-      style={{
-        marginTop: '2rem',
-        padding: '1.5rem',
-        borderRadius: '1rem',
-        backdropFilter: 'blur(12px)',
-        background: 'rgba(255, 255, 255, 0.1)',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
-        border: '1px solid rgba(255, 255, 255, 0.2)',
-      }}
-    >
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          marginBottom: '1rem',
-          gap: '0.5rem',
-        }}
-      >
-        <h3
-          style={{
-            color: '#000',
-            marginBottom: 0,
-            fontWeight: 'bold',
-            fontSize: '1.5rem',
-          }}
-        >
+    <div style={{ marginTop: '2rem', padding: '1.5rem', borderRadius: '1rem', backdropFilter: 'blur(12px)', background: 'rgba(255, 255, 255, 0.1)', boxShadow: '0 8px 32px rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.2)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem', gap: '0.5rem' }}>
+        <h3 style={{ color: '#000', marginBottom: 0, fontWeight: 'bold', fontSize: '1.5rem' }}>
           Top 5 Feature Contributors
         </h3>
         <span style={{ position: 'relative', display: 'inline-block' }}>
-          <AiOutlineInfoCircle
-            style={{ color: '#2563eb', fontSize: '1.2rem', cursor: 'pointer' }}
-          />
-          <span
-            style={{
-              position: 'absolute',
-              left: '1.5rem',
-              top: '-0.5rem',
-              zIndex: 10,
-              width: '20rem',
-              padding: '0.75rem',
-              borderRadius: '0.75rem',
-              background: 'rgba(255,255,255,0.95)',
-              color: '#222',
-              fontSize: '0.95rem',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-              border: '1px solid #e0e0e0',
-              opacity: 0,
-              pointerEvents: 'none',
-              transition: 'opacity 0.2s',
-            }}
-            className="feature-info-tooltip"
-          >
-            💡 The "contributors" are the features (like Age, Weight, AMH level, etc.) that pushed
-            the prediction up or down the most — positively or negatively.
-            <br />
-            These values come from LIME — it assigns a "contribution score" to each feature.
+          <AiOutlineInfoCircle style={{ color: '#2563eb', fontSize: '1.2rem', cursor: 'pointer' }} />
+          <span style={{ position: 'absolute', left: '1.5rem', top: '-0.5rem', zIndex: 10, width: '20rem', padding: '0.75rem', borderRadius: '0.75rem', background: 'rgba(255,255,255,0.95)', color: '#222', fontSize: '0.95rem', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', border: '1px solid #e0e0e0', opacity: 0, pointerEvents: 'none', transition: 'opacity 0.2s' }} className="feature-info-tooltip">
+            💡 The "contributors" are the features that pushed the prediction up or down the most — values come from LIME.
           </span>
         </span>
       </div>
@@ -146,5 +94,3 @@ const FeatureImportanceChart: React.FC<FeatureImportanceChartProps> = ({ explana
     </div>
   );
 };
-
-export default FeatureImportanceChart;
