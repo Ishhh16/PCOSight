@@ -1,36 +1,27 @@
-# 🌸 PCOSight
+# PCOSight 🌸  
+PCOSight is a web app that predicts the likelihood of **Polycystic Ovary Syndrome (PCOS)** based on medical and lifestyle data, while also explaining which factors influence the prediction.  
 
-**PCOSight** is a web application that helps predict the likelihood of **Polycystic Ovary Syndrome (PCOS)** based on user-provided health data, while also explaining which factors contributed most to the prediction.
+## 🚀 Tech Stack  
+- **Frontend:** React + Vite + TypeScript  
+- **Backend:** FastAPI (Python)  
+- **ML Explainability:** LIME (Local Interpretable Model-Agnostic Explanations)  
+- **Charting:** Chart.js for visualization  
 
----
+## 🧠 How It Works  
+1. **Frontend:** A React + Vite interface collects user input through an interactive form and displays predictions in a clean, responsive UI.  
+2. **Backend:** A FastAPI server processes the data, runs the ML model, and returns predictions with explanation scores.  
+3. **Model Explanation:** LIME identifies the top 5 contributing factors, showing whether each increases or decreases the PCOS likelihood.  
 
-## 💡 What It Does
-- Accepts key health and lifestyle inputs such as age, BMI, AMH level, and more.
-- Predicts the probability of PCOS using a trained machine learning model.
-- Shows a **feature importance chart** so users can understand which factors increased or decreased the likelihood.
-- Provides an intuitive and interactive user experience.
+## 📊 Features  
+- PCOS prediction using a trained ML model  
+- Feature importance chart with positive/negative impact coloring  
+- Clean UI with responsive design  
+- Interactive tooltips explaining each feature contribution  
 
----
+## 🛠️ Installation & Setup  
 
-## 🧠 How It Works
-1. **Frontend**: A React + Vite interface that collects user data and displays results.
-2. **Backend**: A Node.js + Python-powered API that runs the machine learning model.
-3. **Model Explanation**: Uses **LIME** (Local Interpretable Model-Agnostic Explanations) to show feature contributions.
-
----
-
-## 🌐 Live Site
-🔗 **Visit here** → [[](https://pcosight.vercel.app/)]()
-
----
-
-## 📌 Purpose
-The goal of PCOSight is to make predictive health insights **more accessible, transparent, and actionable** for individuals who may be at risk of PCOS, empowering them to seek early medical advice.
-
-
-
----
-
-## ⚠ Disclaimer
-This tool is **not** a medical diagnosis. It’s intended for educational purposes only.  
-Please consult a qualified healthcare professional for medical advice.
+### Frontend  
+```bash
+cd frontendPcos
+npm install
+npm run dev
